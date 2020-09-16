@@ -5,8 +5,6 @@ var history = JSON.parse(window.localStorage.getItem("history")) || [];
     $("#search-button").on("click", function(){
         var searchValue =  $("#search-value").val();
 
-        console.log("enter");
-
         if (searchValue != ""){
 
             $("#search-value").val("");
@@ -49,27 +47,17 @@ function searchWeather(searchValue){
     // date.setSeconds(-14400); // specify value for SECONDS here
     // var resulttime = date.toISOString().substr(11, 8);
     // console.log(resulttime);
-    $.ajax({
-        type: "GET",
-        url: "http://api.openweathermap.org/data/2.5/weather?q=" + searchValue + "&appid=4c023acf398932e1b43cd03002ad8542&units=imperial",
-        dataType: "json",
-        success: function(data1){
-            console.log(data1);
+   // http://api.openweathermap.org/data/2.5/forecast/daily?q=paris&cnt=5&appid=ba34b33f61113cd89614cfe7a4ca1665 
 
-        }});
-
-
+    //Rons 4c023acf398932e1b43cd03002ad8542
     $.ajax({
         url: "http://api.openweathermap.org/data/2.5/weather?q=" + searchValue + "&appid=4c023acf398932e1b43cd03002ad8542&units=imperial",
         method: "GET"
     }).then(function(data) {
         //$("#today").text(JSON.stringify(data));
 
-
-
-  
         
-        //console.log(data);
+        console.log(data);
         //Verify is the text in searchvalue contain in history array
         if (history.indexOf(searchValue)=== -1){
             history.push(searchValue);
@@ -108,7 +96,7 @@ function searchWeather(searchValue){
 
 function getUVIndex(lat, long){
     $.ajax({
-        url: "http://api.openweathermap.org/data/2.5/uvi?appid=4c023acf398932e1b43cd03002ad8542&lat=" + lat + "&lon=" + long,
+        url: "http://api.openweathermap.org/data/2.5/uvi?appid=ba34b33f61113cd89614cfe7a4ca1665&lat=" + lat + "&lon=" + long,
         method: "GET"
     }).then(function(response) {
        // $("#today").text(JSON.stringify(data));
@@ -162,28 +150,61 @@ function getUVIndex(lat, long){
 
 function getForecast(searchValue){
 
-        console.log(searchValue);
-        var divCar = $("<div>").addClass("card").css( "color", "red" ) //.css("width: 18rem");
-//var divInt = $("<div>").addClass("card-body");
-        var title = $("<h3>").addClass("card-title").text(searchValue + "(" + new Date().toLocaleDateString('en-US') + ")");
-        var card  = $("<div>").addClass("card");
-        var img   = $("<img>").attr("src", "http://openweathermap.org/img/w/10d.png");
-        var wind  = $("<p>").addClass("card-text").text("Wind Speed: MPH");
-        var humid = $("<p>").addClass("card-text").text("Humidity: %");
-        var temp  = $("<p>").addClass("card-text").text("Temperature: F");
+    $("#forecast").empty();
 
+    $.ajax({
+        type: "GET",
+        url: "http://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&appid=4c023acf398932e1b43cd03002ad8542&units=imperial",
+        dataType: "json",
+        success: function(forecast5){
+            console.log(forecast5.list.length);
+            console.log(forecast5);
+
+
+//             var forecastArr = JSON.stringify(forecast);
+//             console.log(forecastArr.length);
+
+        var row1 = $("<div>").addClass("row");    
+        var titleday = $("<h5>").addClass("text-dark").text("5 Days-Forecast");
+        row1.append(titleday);
+        
+        var row2 = $("<div>").addClass("row");    
+
+        for(var i = 0; i < forecast5.list.length; i +=8)
+        {
+        console.log(forecast5.list[i]);
+        //var days = (forecast5.list[i].dt_txt).toString("yyyy-MM-dd");
+        
+        //var days = moment(forecast5.list[i].dt_txt).format('MMMM Do YYYY');
+        var week = moment(forecast5.list[i].dt_txt).format('llll');
+
+        var divCar = $("<div>").addClass("card border-dark mb-3").css( "width", "190px" ) //.css("width: 18rem");
+        var title = $("<h3>").addClass("card-header").text(week);
+        var img   = $("<img>").attr("src", "http://openweathermap.org/img/w/" + forecast5.list[i].weather[0].icon + ".png");
+        var divInt = $("<div>").addClass("card-body");
+        var wind  = $("<p>").addClass("card-text").text("Wind Speed: " + forecast5.list[i].wind.speed + " MPH");
+        var humid = $("<p>").addClass("card-text").text("Humidity: " + forecast5.list[i].main.humidity + "%");
+        var temp  = $("<p>").addClass("card-text").text("Temperature: " + forecast5.list[i].main.temp + " F");
+        
+              //merge and add to page
+          //title.append(img);
+          divInt.append(img, temp, humid, wind);
+          divCar.append(title, divInt);
+          row2.append(divCar);
+  
+          //call follow-up api endpoints
+          $("#forecast").append(row1, row2);
+       
+
+        }
+
+    }});
         // //merge and add to page
         // title.append(img);
         // cardbody.append(title, temp, humid, wind);
         // card.append(cardbody);
 
-          //merge and add to page
-          title.append(img);
-          card.append(temp, humid, wind);
-          divCar.append(title, card);
-  
-          //call follow-up api endpoints
-          $("#forecast").append(divCar);
+        
         
 
 // {/* <div class="card" style="width: 18rem;">
@@ -201,7 +222,8 @@ function getForecast(searchValue){
 
 
 if(history.length >0){
-    searchWeather(history[(history.length)-1])
+    searchValue = history[(history.length)-1];
+    searchWeather(searchValue)
 }
 
 for(var i = 0; i < history.length; i++){
