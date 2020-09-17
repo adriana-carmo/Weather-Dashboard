@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-var history = JSON.parse(window.localStorage.getItem("history")) || [];
+var historyCities = JSON.parse(window.localStorage.getItem("history")) || [];
 
     $("#search-button").on("click", function(){
         var searchValue =  $("#search-value").val();
@@ -39,9 +39,9 @@ function searchWeather(searchValue){
        
         
         //Verify is the text in searchvalue contain in history array
-        if (history.indexOf(searchValue)=== -1){
-            history.push(searchValue);
-            window.localStorage.setItem("history", JSON.stringify(history))
+        if (historyCities.indexOf(searchValue)=== -1){
+            historyCities.push(searchValue);
+            window.localStorage.setItem("history", JSON.stringify(historyCities))
 
             makeRow(searchValue);
         } 
@@ -50,15 +50,15 @@ function searchWeather(searchValue){
 
         var card  = $("<div>").addClass("card");
         var cardbody = $("<div>").addClass("card-body");
-        var title = $("<h3>").addClass("card-title").text(data.name + "/" + data.sys.country   + " - (" + new Date().toLocaleDateString('en-US') + ")");
+        var city = $("<h3>").addClass("card-title").text(data.name + "/" + data.sys.country   + " - (" + new Date().toLocaleDateString('en-US') + ")");
+        var img   = $("<img>").attr("src", "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
         var wind  = $("<p>").addClass("card-text").text("Wind Speed: " + data.wind.speed + " MPH");
         var humid = $("<p>").addClass("card-text").text("Humidity: " + data.main.humidity + "%");
         var temp  = $("<p>").addClass("card-text").text("Temperature: " + data.main.temp + String.fromCharCode(176));
-        var img   = $("<img>").attr("src", "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
         
         //merge and add to page
-        title.append(img);
-        cardbody.append(title, temp, humid, wind);
+        city.append(img);
+        cardbody.append(city, temp, humid, wind);
         card.append(cardbody);
 
         //call follow-up api endpoints
@@ -78,20 +78,21 @@ function getUVIndex(lat, long){
         method: "GET"
     }).then(function(response) {
            var uv = $("<p>").text("UV Index: ");
-           var btn = $("<span>").addClass("btn btn-sm").text(response.value);
+           var btncolor = $("<span>").addClass("btn btn-sm").text(response.value);
         
            if (response.value <3){
-               btn.addClass("btn-sucess");
+                btncolor.addClass("btn-sucess");
            }
            else if(response.value < 7){
-               btn.addClass("btn-warning")
+                btncolor.addClass("btn-warning")
            }
            else{
-               btn.addClass("btn-danger")
+                btncolor.addClass("btn-danger")
            }
 
-           //Append in the div #today to show up in the page 
-           $("#today .card-body").append(uv.append(btn));
+           //Append in the div #today to show up in the page
+           uv.append(btncolor) 
+           $("#today .card-body").append(uv);
          })
 }
 
@@ -149,14 +150,14 @@ function getForecast(searchValue){
  }
 
 //verify in LocalStorage the cities
-if(history.length >0){
-    searchValue = history[(history.length)-1];
+if(historyCities.length >0){
+    searchValue = historyCities[(historyCities.length)-1];
     searchWeather(searchValue)
 }
 
 // Fill in the cities that have already been searched
-for(var i = 0; i < history.length; i++){
-    makeRow(history[i]);
+for(var i = 0; i < historyCities.length; i++){
+    makeRow(historyCities[i]);
 }
 
 });
