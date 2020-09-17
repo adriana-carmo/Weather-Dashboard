@@ -22,7 +22,7 @@ $(".history").on("click", "li", function(){
  
 });
 
-//Make row of the cities that have already been searched
+//Make row of the cities that have already been searched 
 function makeRow(text){
     var li = $("<li>").addClass("list-group-item list-group-item-action").text(text);
     $(".history").append(li);
