@@ -23,5 +23,10 @@ with a 5-day forecast that displays
 # Save your previous searches
 You can click on a city in the search history and then display the current and future conditions of that city again.
 
+## 📝 License
+
+Copyright © 2020 [Adriana](https://github.com/adriana-carmo).<br />
+[Homepage](https://adriana-carmo.github.io/Weather-Dashboard/)
+
 
 ![Layout_Page](./img/Layout_Page.png)
